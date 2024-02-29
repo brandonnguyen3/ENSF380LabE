@@ -6,17 +6,17 @@ import java.util.Stack;
 
 public class ToDoList implements IToDoList {
     private List<Task> tasks;
-    private Stack<List<Task>> history;
+    private Stack<List<Task>> historyStack;
 
     public ToDoList() {
-        tasks = new ArrayList<>();
-        history = new Stack<>();
+        this.tasks = new ArrayList<>();
+        this.historyStack = new Stack<>();
     }
 
     @Override
     public void addTask(Task task) {
         saveState();
-        tasks.add(task);
+        tasks.add(task.copy());
     }
 
     @Override
@@ -25,7 +25,7 @@ public class ToDoList implements IToDoList {
         for (Task task : tasks) {
             if (task.getId().equals(taskId)) {
                 task.setCompleted(true);
-                return;
+                break;
             }
         }
     }
@@ -37,31 +37,34 @@ public class ToDoList implements IToDoList {
     }
 
     @Override
-    public void editTask(String taskId, String newTitle, boolean isCompleted) {
+    public void editTask(String taskId, String newTitle, boolean newCompletionStatus) {
         saveState();
         for (Task task : tasks) {
             if (task.getId().equals(taskId)) {
                 task.setTitle(newTitle);
-                task.setCompleted(isCompleted);
-                return;
+                task.setCompleted(newCompletionStatus);
+                break;
             }
         }
     }
 
     @Override
     public void undo() {
-        if (!history.isEmpty()) {
-            tasks = new ArrayList<>(history.pop());
+        if (!historyStack.isEmpty()) {
+            tasks = historyStack.pop();
         }
     }
 
     @Override
     public List<Task> listTasks() {
-        return new ArrayList<>(tasks);
+        return tasks;
     }
 
-    // Private method to save current state into history stack
     private void saveState() {
-        history.push(new ArrayList<>(tasks));
+        List<Task> currentState = new ArrayList<>();
+        for (Task task : tasks) {
+            currentState.add(task.copy());
+        }
+        historyStack.push(currentState);
     }
 }
