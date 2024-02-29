@@ -6,42 +6,67 @@ import java.util.Stack;
 
 public class ToDoList implements IToDoList {
     private List<Task> tasks;
-    private Stack<List<Task>> history;
+    private Stack<List<Task>> historyStack;
 
     public ToDoList() {
         this.tasks = new ArrayList<>();
-        this.history = new Stack<>();
+        this.historyStack = new Stack<>();
     }
 
     @Override
     public void addTask(Task task) {
-        history.push(copyTasks(tasks));
-        tasks.add(new Task(task));
+        saveState();
+        tasks.add(task.copy());
     }
 
     @Override
-    public void completeTask(String id) {
-        history.push(copyTasks(tasks));
+    public void completeTask(String taskId) {
+        saveState();
         for (Task task : tasks) {
-            if (task.getId().equals(id)) {
+            if (task.getId().equals(taskId)) {
                 task.setCompleted(true);
                 break;
             }
         }
     }
 
-// need edit, delete and undo
+    @Override
+    public void deleteTask(String taskId) {
+        saveState();
+        tasks.removeIf(task -> task.getId().equals(taskId));
+    }
+
+    @Override
+    public void editTask(String taskId, String newTitle, boolean newCompletionStatus) {
+        saveState();
+        for (Task task : tasks) {
+            if (task.getId().equals(taskId)) {
+                task.setTitle(newTitle);
+                task.setCompleted(newCompletionStatus);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void undo() {
+        if (!historyStack.isEmpty()) {
+            tasks = historyStack.pop();
+        }
+    }
 
     @Override
     public List<Task> listTasks() {
-        return new ArrayList<>(tasks);
+        return tasks;
     }
 
-    private List<Task> copyTasks(List<Task> tasks) {
-        List<Task> copy = new ArrayList<>();
+    private void saveState() {
+        List<Task> currentState = new ArrayList<>();
         for (Task task : tasks) {
-            copy.add(new Task(task));
+            currentState.add(task.copy());
         }
-        return copy;
+        historyStack.push(currentState);
     }
+
+
 }
