@@ -1,27 +1,31 @@
 package edu.ucalgary.oop;
 
-import java.util.Objects;
-
 public class Task {
     private String id;
     private String title;
     private boolean isCompleted;
 
-    // Constructor
-    public Task(String id, String title, boolean isCompleted) {
+    public Task(String id, String title) {
         this.id = id;
         this.title = title;
-        this.isCompleted = isCompleted;
+        this.isCompleted = false;
     }
 
-    // Copy method for deep copying task objects
-    public Task copy() {
-        return new Task(this.id, this.title, this.isCompleted);
+    // Copy constructor for deep copying task objects
+    public Task(Task originalTask) {
+        this.id = originalTask.id;
+        this.title = originalTask.title;
+        this.isCompleted = originalTask.isCompleted;
     }
 
-    // Getters and Setters
+    // Getters and setters
+
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -40,18 +44,8 @@ public class Task {
         isCompleted = completed;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        Task task = (Task) obj;
-        return Objects.equals(id, task.id) &&
-               Objects.equals(title, task.title) &&
-               isCompleted == task.isCompleted;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, title, isCompleted);
+    // Deep copy method for Task objects
+    public Task copy() {
+        return new Task(this);
     }
 }
